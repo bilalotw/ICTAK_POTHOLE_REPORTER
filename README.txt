@@ -10,4 +10,13 @@ Steps:
      python create_pwd_user.py pwd_admin admin123
   4. Run app:
      python app.py
+  5. Register new User (only local people can register no new admin is created in this way)
+  6. Report incidents
+
+
+  Cons
+  1. Pothole location accurracy need to be improved using google map API
+
+  Future Enhancements
+  1. potholes need to be detected auomatically using IOT enabled smart systems mounted in the vehicle so that inciident reposting can be so much eficient
 
