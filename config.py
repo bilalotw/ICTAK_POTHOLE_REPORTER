@@ -1,14 +1,21 @@
 import os
+from dotenv import load_dotenv  # Add this import
+
+# Load environment variables from .env file
+load_dotenv()
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Use MongoDB Atlas URI if provided in environment variables, otherwise fall back to local
-MONGO_URI = os.environ.get(
-    "MONGO_URI",
-    "mongodb+srv://bilalapple247:j6ooYDPj0aSvplT@cluster0.ujqltxa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-)
+# MongoDB Configuration - ONLY use environment variables
+MONGO_URI = os.environ["MONGO_URI"]  # No fallback value!
+DB_NAME = os.environ.get("MONGO_DB_NAME", "default_db")
 
+# File Uploads
 UPLOAD_FOLDER = os.environ.get(
-    "UPLOAD_FOLDER", os.path.join(BASE_DIR, "uploads"))
+    "UPLOAD_FOLDER", 
+    os.path.join(BASE_DIR, "uploads")
+)
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "change_this_secret_in_prod")
+# Security
+SECRET_KEY = os.environ["SECRET_KEY"]  # No default value!
