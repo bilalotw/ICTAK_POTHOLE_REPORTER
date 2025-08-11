@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Thank you — report submitted!</h3>
+<p>Your report id: <strong>{{ report_id }}</strong></p>
+<p>You can view the report here: <a href="{{ url_for('view_report', report_id=report_id) }}">{{ url_for('view_report', report_id=report_id, _external=true) }}</a></p>
+{% endblock %}

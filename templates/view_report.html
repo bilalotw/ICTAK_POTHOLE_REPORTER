@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Report {{ report._id }}</h3>
+<div class="row">
+  <div class="col-md-6">
+    <img src="{{ report.image_url }}" class="img-fluid">
+  </div>
+  <div class="col-md-6">
+    <p><strong>Status:</strong> {{ report.status }}</p>
+    <p><strong>When:</strong> {{ report.timestamp }}</p>
+    <p><strong>Location:</strong> {{ report.latitude }}, {{ report.longitude }}</p>
+    <p><strong>Reported by:</strong> {{ report.reported_by_username }}</p>
+    <p><strong>Description:</strong> {{ report.description }}</p>
+
+    <h5>Comments</h5>
+    {% if report.comments %}
+      <ul>
+        {% for c in report.comments %}
+          <li>{{ c.text }} — {{ c.when }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No comments yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

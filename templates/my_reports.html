@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>My Reports</h3>
+<div class="row">
+  {% for r in reports %}
+    <div class="col-md-6 mb-3">
+      <div class="card p-2">
+        <img src="{{ r.image_url }}" class="img-fluid mb-2">
+        <div><strong>{{ r.status }}</strong> — <small>{{ r.timestamp }}</small></div>
+        <div>{{ r.description }}</div>
+        <a class="btn btn-sm btn-link" href="{{ url_for('view_report', report_id=r._id) }}">View</a>
+      </div>
+    </div>
+  {% else %}
+    <p>No reports yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

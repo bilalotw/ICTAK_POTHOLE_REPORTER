@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Report a pothole</h2>
+<form action="" method="post" enctype="multipart/form-data" class="mb-3">
+  <div class="mb-2">
+    <label class="form-label">Photo</label>
+    <input class="form-control" type="file" name="image" accept="image/*" required>
+  </div>
+
+  <div class="mb-2">
+    <label class="form-label">Description (optional)</label>
+    <input class="form-control" name="description" placeholder="Short note">
+  </div>
+
+  <div class="mb-2">
+    <label class="form-label">Location (auto-filled)</label>
+    <div class="row">
+      <div class="col">
+        <input id="latitude" name="latitude" class="form-control" placeholder="Latitude" required>
+      </div>
+      <div class="col">
+        <input id="longitude" name="longitude" class="form-control" placeholder="Longitude" required>
+      </div>
+    </div>
+    <small class="text-muted">Allow location access in your browser for auto-fill. You can also paste coordinates.</small>
+  </div>
+
+  <button class="btn btn-primary" type="submit">Submit report</button>
+</form>
+
+<h4>Quick preview on the map</h4>
+<div id="map"></div>
+
+<script>
+window.addEventListener("load", function() {
+  var map = L.map('map').setView([20.5937, 78.9629], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      var lat = pos.coords.latitude;
+      var lon = pos.coords.longitude;
+      document.getElementById('latitude').value = lat;
+      document.getElementById('longitude').value = lon;
+      L.marker([lat, lon]).addTo(map);
+      map.setView([lat, lon], 16);
+    });
+  }
+});
+</script>
+{% endblock %}
