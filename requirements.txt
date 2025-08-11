@@ -6,4 +6,3 @@ Flask-Login==0.6.2
 werkzeug==2.3.7
 dnspython
 gunicorn
-pymongo[srv]==3.6
