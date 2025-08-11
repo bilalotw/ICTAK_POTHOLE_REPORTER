@@ -4,7 +4,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Use MongoDB Atlas URI if provided in environment variables, otherwise fall back to local
 MONGO_URI = os.environ.get(
     "MONGO_URI",
-    "mongodb+srv://bilalapple247:777@Smeasy@cluster0.ujq1txa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    "mongodb+srv://bilalapple247:777%40Smeasy@cluster0.ujq1txa.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 )
 
 UPLOAD_FOLDER = os.environ.get(
