@@ -9,7 +9,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # MongoDB URI
 MONGO_URI = os.environ.get(
     "MONGO_URI",
-    "mongodb://localhost:27017/pothole_db"
+    "mongodb://localhost:27017/ictakpothole"  # Default local MongoDB URI
 )
 if "MONGO_URI" not in os.environ:
     print("⚠️ WARNING: Using local MongoDB URI. Set MONGO_URI in environment for production.")
@@ -18,7 +18,8 @@ if "MONGO_URI" not in os.environ:
 DB_NAME = os.environ.get("MONGO_DB_NAME", "ictakpothole")
 
 # File Upload Configuration
-UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", os.path.join(BASE_DIR, "uploads"))
+UPLOAD_FOLDER = os.environ.get(
+    "UPLOAD_FOLDER", os.path.join(BASE_DIR, "uploads"))
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 
 # Security Key
