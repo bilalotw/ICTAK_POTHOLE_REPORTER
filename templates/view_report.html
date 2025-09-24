@@ -1,27 +1,82 @@
-{% extends "base.html" %}
-{% block content %}
-<h3>Report {{ report._id }}</h3>
-<div class="row">
-  <div class="col-md-6">
-    <img src="{{ report.image_url }}" class="img-fluid">
-  </div>
-  <div class="col-md-6">
-    <p><strong>Status:</strong> {{ report.status }}</p>
-    <p><strong>When:</strong> {{ report.timestamp }}</p>
-    <p><strong>Location:</strong> {{ report.latitude }}, {{ report.longitude }}</p>
-    <p><strong>Reported by:</strong> {{ report.reported_by_username }}</p>
-    <p><strong>Description:</strong> {{ report.description }}</p>
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h3 class="mb-4">Report Details</h3>
+  <div class="row g-4">
+    <!-- Image Section with fixed ratio -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="ratio ratio-4x3 bg-light">
+          <img
+            src="{{ report.image_url }}"
+            class="img-cover"
+            alt="Report Image"
+          />
+        </div>
+      </div>
+    </div>
 
-    <h5>Comments</h5>
-    {% if report.comments %}
-      <ul>
-        {% for c in report.comments %}
-          <li>{{ c.text }} — {{ c.when }}</li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>No comments yet.</p>
-    {% endif %}
+    <!-- Details Section -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+          <!-- Status Badge -->
+          <p>
+            <span
+              class="badge {% if report.status == 'Resolved' %} bg-success {% elif report.status == 'In Progress' %} bg-warning text-dark {% else %} bg-secondary {% endif %}"
+            >
+              {{ report.status }}
+            </span>
+          </p>
+
+          <p><strong>Report ID:</strong> {{ report._id }}</p>
+          <p><strong>Date:</strong> {{ report.timestamp }}</p>
+          <p>
+            <strong>Location:</strong> 📍 {{ report.latitude }}, {{
+            report.longitude }}
+          </p>
+          <p><strong>Reported by:</strong> {{ report.reported_by_username }}</p>
+          <p>
+            <strong>Description:</strong> {{ report.description if
+            report.description else "No description provided." }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comments Section -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Comments</h5>
+        </div>
+        <div class="card-body">
+          {% if report.comments %}
+          <ul class="list-group list-group-flush">
+            {% for c in report.comments %}
+            <li class="list-group-item">
+              <p class="mb-1">{{ c.text }}</p>
+              <small class="text-muted">🕒 {{ c.when }}</small>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="text-muted">No comments yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+<style>
+  /* Ensure report image looks consistent */
+  .img-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* crop edges, maintain aspect ratio */
+    object-position: center;
+  }
+</style>
 {% endblock %}

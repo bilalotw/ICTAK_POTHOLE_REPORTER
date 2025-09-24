@@ -6,3 +6,8 @@ Flask-Login==0.6.2
 werkzeug==2.3.7
 dnspython==2.7.0
 gunicorn==23.0.0
+
+# Added for YOLOv8 and image processing
+pillow==9.5.0
+ultralyticsplus  # includes YOLOv8 + PyTorch dependencies
+torch>=2.1.0             # required for ultralyticsplus, CPU or GPU version

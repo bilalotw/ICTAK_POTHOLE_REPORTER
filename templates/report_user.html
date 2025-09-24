@@ -1,50 +1,113 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Report a pothole</h2>
+{% extends "base.html" %} {% block content %}
+<h2>Report a Pothole</h2>
+
 <form action="" method="post" enctype="multipart/form-data" class="mb-3">
-  <div class="mb-2">
+  <div class="mb-3">
     <label class="form-label">Photo</label>
-    <input class="form-control" type="file" name="image" accept="image/*" required>
+    <input
+      class="form-control"
+      type="file"
+      name="image"
+      accept="image/*"
+      required
+    />
   </div>
 
-  <div class="mb-2">
+  <div class="mb-3">
     <label class="form-label">Description (optional)</label>
-    <input class="form-control" name="description" placeholder="Short note">
+    <input class="form-control" name="description" placeholder="Short note" />
   </div>
 
-  <div class="mb-2">
+  <div class="mb-3">
     <label class="form-label">Location (auto-filled)</label>
-    <div class="row">
+    <div class="row g-2">
       <div class="col">
-        <input id="latitude" name="latitude" class="form-control" placeholder="Latitude" required>
+        <input
+          id="latitude"
+          name="latitude"
+          class="form-control"
+          placeholder="Latitude"
+          required
+        />
       </div>
       <div class="col">
-        <input id="longitude" name="longitude" class="form-control" placeholder="Longitude" required>
+        <input
+          id="longitude"
+          name="longitude"
+          class="form-control"
+          placeholder="Longitude"
+          required
+        />
       </div>
     </div>
-    <small class="text-muted">Allow location access in your browser for auto-fill. You can also paste coordinates.</small>
+    <small class="text-muted"
+      >Allow location access in your browser for auto-fill. You can also drag
+      the marker or paste coordinates manually.</small
+    >
   </div>
 
-  <button class="btn btn-primary" type="submit">Submit report</button>
+  <button class="btn btn-primary" type="submit">Submit Report</button>
 </form>
 
-<h4>Quick preview on the map</h4>
-<div id="map"></div>
+<h4 class="mt-4">Preview Location</h4>
+<div id="map" class="rounded shadow-sm" style="height: 400px"></div>
 
 <script>
-window.addEventListener("load", function() {
-  var map = L.map('map').setView([20.5937, 78.9629], 5);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(pos) {
-      var lat = pos.coords.latitude;
-      var lon = pos.coords.longitude;
-      document.getElementById('latitude').value = lat;
-      document.getElementById('longitude').value = lon;
-      L.marker([lat, lon]).addTo(map);
+  window.addEventListener("load", function () {
+    // Initialize map
+    var map = L.map("map").setView([20.5937, 78.9629], 5);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(
+      map
+    );
+
+    var marker;
+
+    function setMarker(lat, lon) {
+      if (marker) {
+        marker.setLatLng([lat, lon]);
+      } else {
+        marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+        marker.on("dragend", function (e) {
+          var pos = e.target.getLatLng();
+          document.getElementById("latitude").value = pos.lat.toFixed(6);
+          document.getElementById("longitude").value = pos.lng.toFixed(6);
+        });
+      }
       map.setView([lat, lon], 16);
+    }
+
+    // Geolocation auto-fill
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        var lat = pos.coords.latitude;
+        var lon = pos.coords.longitude;
+        document.getElementById("latitude").value = lat.toFixed(6);
+        document.getElementById("longitude").value = lon.toFixed(6);
+        setMarker(lat, lon);
+      });
+    }
+
+    // Update marker when user edits coordinates manually
+    document.getElementById("latitude").addEventListener("change", function () {
+      var lat = parseFloat(this.value);
+      var lon = parseFloat(document.getElementById("longitude").value);
+      if (!isNaN(lat) && !isNaN(lon)) setMarker(lat, lon);
     });
-  }
-});
+    document
+      .getElementById("longitude")
+      .addEventListener("change", function () {
+        var lat = parseFloat(document.getElementById("latitude").value);
+        var lon = parseFloat(this.value);
+        if (!isNaN(lat) && !isNaN(lon)) setMarker(lat, lon);
+      });
+  });
 </script>
+
+<style>
+  #map {
+    width: 100%;
+    max-width: 100%;
+    height: 400px;
+  }
+</style>
 {% endblock %}

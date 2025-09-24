@@ -1,101 +1,133 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-2">
-  <h3>PWD Dashboard</h3>
+<div class="container my-4">
+  <h3 class="mb-4">PWD Dashboard</h3>
+
+  <div class="row">
+    <!-- Map Column -->
+    <div class="col-lg-6 mb-4">
+      <div id="map" class="rounded shadow-sm" style="height: 100%; min-height: 500px;"></div>
+    </div>
+
+    <!-- Reports Column -->
+    <div class="col-lg-6 d-flex flex-column" style="max-height: 500px;">
+      <div class="overflow-auto flex-grow-1">
+        {% for r in reports %}
+        <div class="card shadow-sm mb-3" data-id="{{ r._id }}">
+          <div class="row g-0">
+            <div class="col-4">
+              <div style="height:100%; overflow:hidden;">
+                <img src="{{ r.image_url }}" class="img-cover w-100 h-100" alt="Pothole">
+              </div>
+            </div>
+            <div class="col-8">
+              <div class="card-body p-2">
+                <p class="mb-1"><strong>Status:</strong> 
+                  <span class="badge 
+                    {% if r.status == 'Resolved' %}bg-success
+                    {% elif r.status == 'In Progress' %}bg-warning text-dark
+                    {% else %}bg-secondary{% endif %}">
+                    {{ r.status }}
+                  </span>
+                </p>
+                <p class="mb-1"><strong>Description:</strong> {{ r.description or 'N/A' }}</p>
+                <p class="mb-1"><strong>Location:</strong> {{ r.latitude }}, {{ r.longitude }}</p>
+                <p class="mb-1"><strong>Reported by:</strong> {{ r.reported_by_username or 'N/A' }}</p>
+
+                <div class="d-flex mb-1">
+                  <select class="form-select form-select-sm me-2 status-select">
+                    <option value="Pending" {% if r.status=='Pending'%}selected{% endif %}>Pending</option>
+                    <option value="In Progress" {% if r.status=='In Progress'%}selected{% endif %}>In Progress</option>
+                    <option value="Resolved" {% if r.status=='Resolved'%}selected{% endif %}>Resolved</option>
+                  </select>
+                  <input type="text" class="form-control form-control-sm comment-input" placeholder="Add comment">
+                  <button class="btn btn-sm btn-primary ms-2 update-btn">Update</button>
+                </div>
+
+                <small class="text-muted">{{ r.timestamp }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="row">
-  <div class="col-md-7">
-    <div id="map"></div>
-  </div>
-  <div class="col-md-5">
-    <h5>Reports</h5>
-    <table class="table table-sm table-bordered align-middle">
-      <thead>
-        <tr>
-          <th>Image</th>
-          <th>Desc</th>
-          <th>Loc</th>
-          <th>By</th>
-          <th>Status</th>
-          <th>Comment</th>
-          <th>Update</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for r in reports %}
-        <tr data-id="{{ r._id }}">
-          <td><img src="{{ r.image_url }}" width="80"></td>
-          <td>{{ r.description or 'N/A' }}</td>
-          <td>{{ r.latitude }}, {{ r.longitude }}</td>
-          <td>{{ r.reported_by_username or 'N/A' }}</td>
-          <td>
-            <select class="form-select form-select-sm status-select">
-              <option value="Pending" {% if r.status == 'Pending' %}selected{% endif %}>Pending</option>
-              <option value="In Progress" {% if r.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-              <option value="Resolved" {% if r.status == 'Resolved' %}selected{% endif %}>Resolved</option>
-            </select>
-          </td>
-          <td>
-            <input type="text" class="form-control form-control-sm comment-input" placeholder="Add comment">
-          </td>
-          <td>
-            <button class="btn btn-sm btn-primary update-btn">Update</button>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+<style>
+.img-cover {
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+.overflow-auto {
+  overflow-y: auto;
+}
+</style>
 
 <script>
-window.addEventListener('load', function(){
-  var reports = {{ reports|tojson|safe }};
+window.addEventListener('load', function() {
+  const reports = {{ reports|tojson|safe }};
 
-  // Leaflet map
-  var map = L.map('map').setView([20.5937,78.9629], 5);
+  // Initialize Leaflet map
+  const map = L.map('map').setView([20.5937,78.9629], 5);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-  if (reports && reports.length) {
-    reports.forEach(function(r){
-      var m = L.marker([r.latitude, r.longitude]).addTo(map);
-      var popup = '<div><img src="' + r.image_url + '" class="thumb mb-1"><br/>' +
-                  '<strong>' + r.status + '</strong><br/>' +
-                  '<small>' + r.timestamp + '</small><br/>' +
-                  '<div>By: ' + (r.reported_by_username || 'unknown') + '</div>' +
-                  '<a href="/report/' + r._id + '" target="_blank">Open</a></div>';
-      m.bindPopup(popup);
+
+  if(reports.length){
+    reports.forEach(r => {
+      const marker = L.marker([r.latitude, r.longitude]).addTo(map);
+      const popup = `<div>
+        <img src="${r.image_url}" style="width:120px;height:80px;object-fit:cover;border-radius:4px;"><br>
+        <strong>${r.status}</strong><br>
+        <small>${r.timestamp}</small><br>
+        By: ${r.reported_by_username || 'unknown'}<br>
+        <a href="/report/${r._id}" target="_blank">View Details</a>
+      </div>`;
+      marker.bindPopup(popup);
     });
     map.setView([reports[0].latitude, reports[0].longitude], 12);
   }
 
-  // Handle update button click
-  document.querySelectorAll('.update-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var row = btn.closest('tr');
-      var reportId = row.getAttribute('data-id');
-      var status = row.querySelector('.status-select').value;
-      var comment = row.querySelector('.comment-input').value;
+  // Update handler
+  document.querySelectorAll('.update-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.card');
+      const reportId = card.dataset.id;
+      const status = card.querySelector('.status-select').value;
+      const comment = card.querySelector('.comment-input').value;
+      const badge = card.querySelector('.badge');
 
       fetch('/pwd/update_status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          report_id: reportId,
-          status: status,
-          comment: comment
-        })
-      }).then(res => res.json())
-      .then(data => {
-        if (data.ok) {
-          alert('Status updated successfully!');
+        body: JSON.stringify({ report_id: reportId, status, comment })
+      }).then(res => res.json()).then(data => {
+        if(data.ok) {
+          // Update badge text
+          badge.textContent = status;
+
+          // Remove previous badge classes
+          badge.classList.remove('bg-success', 'bg-warning', 'text-dark', 'bg-secondary');
+
+          // Add new badge class based on status
+          if (status === 'Resolved') {
+            badge.classList.add('bg-success');
+          } else if (status === 'In Progress') {
+            badge.classList.add('bg-warning', 'text-dark');
+          } else {
+            badge.classList.add('bg-secondary');
+          }
+
+          // Clear comment input
+          card.querySelector('.comment-input').value = '';
+
         } else {
-          alert('Error: ' + (data.error || 'unknown'));
+          alert('Error: ' + (data.error || 'Unknown'));
         }
       });
     });
   });
-
 });
 </script>
 {% endblock %}

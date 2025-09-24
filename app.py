@@ -10,7 +10,9 @@ from flask_pymongo import PyMongo
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-
+from ultralyticsplus import YOLO
+from PIL import Image
+import io
 import config
 
 app = Flask(__name__)
@@ -70,22 +72,57 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip().lower()
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
-        if not username or not password:
-            flash('Username and password required', 'danger')
-            return redirect(request.url)
-        if mongo.db.users.find_one({'username': username}):
-            flash('Username already exists', 'danger')
-            return redirect(request.url)
+        confirm_password = request.form.get('confirm_password', '').strip()
+        phone = request.form.get('phone', '').strip()
+
+        errors = {}
+
+        # Basic validation
+        if not name:
+            errors['name'] = 'Full name is required.'
+        if not email:
+            errors['email'] = 'Email is required.'
+        elif mongo.db.users.find_one({'email': email}):
+            errors['email'] = 'Email already exists.'
+        if not username:
+            errors['username'] = 'Username is required.'
+        elif mongo.db.users.find_one({'username': username}):
+            errors['username'] = 'Username already exists.'
+        if not password:
+            errors['password'] = 'Password is required.'
+        elif len(password) < 6:
+            errors['password'] = 'Password must be at least 6 characters.'
+        if password != confirm_password:
+            errors['confirm_password'] = 'Passwords do not match.'
+        if not phone:
+            errors['phone'] = 'Phone number is required.'
+        elif not phone.isdigit() or len(phone) != 10:
+            errors['phone'] = 'Phone number must be 10 digits.'
+
+        if errors:
+            # Pass errors back to template
+            return render_template('register.html', errors=errors,
+                                   form_data=request.form)
+
+        # If no errors, create user
         user = {
+            'name': name,
+            'email': email,
             'username': username,
             'password_hash': generate_password_hash(password),
-            'role': 'user'
+            'phone': phone,
+            'role': 'user',
+            'created_at': datetime.utcnow()
         }
         mongo.db.users.insert_one(user)
+
         flash('Registration successful. Please log in.', 'success')
         return redirect(url_for('login'))
+
     return render_template('register.html')
 
 
@@ -116,7 +153,13 @@ def logout():
     return redirect(url_for('login'))
 
 
-# --- User submit report ---
+# report submission by normal users
+# Load model once globally
+model = YOLO("keremberke/yolov8m-pothole-segmentation")
+model.overrides['conf'] = 0.25
+model.overrides['iou'] = 0.45
+
+
 @app.route('/report', methods=['GET', 'POST'])
 @login_required
 def report():
@@ -137,7 +180,27 @@ def report():
             flash('Location required', 'danger')
             return redirect(request.url)
 
-        # Convert image to Base64
+        # Convert file → PIL Image for YOLO
+        pil_image = Image.open(io.BytesIO(image.read()))
+
+        # Run YOLO detection
+        results = model.predict(pil_image)
+
+        detections = []
+        for box, conf in zip(results[0].boxes.xyxy, results[0].boxes.conf):
+            detections.append({
+                "box": box.tolist(),
+                "confidence": float(conf)
+            })
+
+        if len(detections) == 0:
+            flash("No pothole detected in the image. Please try again.", "warning")
+            return redirect(request.url)
+
+        # Rewind file pointer for saving (since we already read it above)
+        image.stream.seek(0)
+
+        # Convert image to Base64 for Mongo
         image_data = base64.b64encode(image.read()).decode('utf-8')
         mime_type = f"image/{image.filename.rsplit('.', 1)[1].lower()}"
 
@@ -151,7 +214,8 @@ def report():
             'timestamp': datetime.utcnow(),
             'status': 'Pending',
             'reported_by': ObjectId(current_user.id),
-            'comments': []
+            'comments': [],
+            'detections': detections  # NEW: store model detections
         }
         res = mongo.db.potholes.insert_one(doc)
         return redirect(url_for('thank_you', report_id=str(res.inserted_id)))

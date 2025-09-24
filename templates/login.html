@@ -1,17 +1,93 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-6">
-    <h3>Login</h3>
-    <form method="post">
-      <div class="mb-2">
-        <input name="username" class="form-control" placeholder="Username" required>
+  <div class="col-md-5 col-lg-4">
+    <div class="card shadow-sm rounded-3 mt-5">
+      <div class="card-body p-4">
+        <h3 class="mb-4 text-center">Login</h3>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, message in messages %}
+        <div
+          class="alert alert-{{ category }} alert-dismissible fade show"
+          role="alert"
+        >
+          {{ message }}
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close"
+          ></button>
+        </div>
+        {% endfor %} {% endif %} {% endwith %}
+
+        <form method="post" novalidate>
+          <!-- Username -->
+          <div class="mb-3">
+            <label class="form-label" for="username">Username</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              class="form-control"
+              placeholder="Enter username"
+              required
+            />
+            <div class="invalid-feedback">Please enter your username.</div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            <label class="form-label" for="password">Password</label>
+            <div class="input-group">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                class="form-control"
+                placeholder="Enter password"
+                required
+              />
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                id="togglePassword"
+              >
+                <i class="bi bi-eye"></i>
+              </button>
+              <div class="invalid-feedback">Please enter your password.</div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+
+        <p class="text-center mt-3">
+          <a href="{{ url_for('register') }}"
+            >Don't have an account? Register</a
+          >
+        </p>
       </div>
-      <div class="mb-2">
-        <input type="password" name="password" class="form-control" placeholder="Password" required>
-      </div>
-      <button class="btn btn-primary" type="submit">Login</button>
-    </form>
+    </div>
   </div>
 </div>
+
+<script>
+  document
+    .getElementById("togglePassword")
+    .addEventListener("click", function () {
+      const password = document.getElementById("password");
+      const icon = this.querySelector("i");
+      if (password.type === "password") {
+        password.type = "text";
+        icon.classList.remove("bi-eye");
+        icon.classList.add("bi-eye-slash");
+      } else {
+        password.type = "password";
+        icon.classList.remove("bi-eye-slash");
+        icon.classList.add("bi-eye");
+      }
+    });
+</script>
 {% endblock %}

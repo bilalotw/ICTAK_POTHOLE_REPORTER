@@ -1,18 +1,62 @@
-{% extends "base.html" %}
-{% block content %}
-<h3>My Reports</h3>
-<div class="row">
-  {% for r in reports %}
-    <div class="col-md-6 mb-3">
-      <div class="card p-2">
-        <img src="{{ r.image_url }}" class="img-fluid mb-2">
-        <div><strong>{{ r.status }}</strong> — <small>{{ r.timestamp }}</small></div>
-        <div>{{ r.description }}</div>
-        <a class="btn btn-sm btn-link" href="{{ url_for('view_report', report_id=r._id) }}">View</a>
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h3 class="mb-4">My Reports</h3>
+
+  {% if reports %}
+  <div class="row g-4">
+    {% for r in reports %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm h-100 border-0 rounded-3 overflow-hidden">
+        <!-- Fixed Image Container -->
+        <div class="ratio ratio-4x3 bg-light">
+          <img
+            src="{{ r.image_url }}"
+            class="card-img-top img-cover"
+            alt="Report image"
+          />
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span
+              class="badge {% if r.status == 'Resolved' %} bg-success {% elif r.status == 'In Progress' %} bg-warning text-dark {% else %} bg-secondary {% endif %}"
+            >
+              {{ r.status }}
+            </span>
+            <small class="text-muted">{{ r.timestamp | safe }}</small>
+          </div>
+
+          <p class="card-text text-truncate" title="{{ r.description }}">
+            {{ r.description if r.description else "No description provided." }}
+          </p>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer bg-white border-0 text-end">
+          <a
+            class="btn btn-outline-primary btn-sm"
+            href="{{ url_for('view_report', report_id=r._id) }}"
+          >
+            View Details
+          </a>
+        </div>
       </div>
     </div>
+    {% endfor %}
+  </div>
   {% else %}
-    <p>No reports yet.</p>
-  {% endfor %}
+  <div class="alert alert-info">You haven’t submitted any reports yet.</div>
+  {% endif %}
 </div>
+
+<style>
+  /* Ensure all report images look consistent */
+  .img-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* crop edges, keeps aspect ratio */
+    object-position: center;
+  }
+</style>
 {% endblock %}
