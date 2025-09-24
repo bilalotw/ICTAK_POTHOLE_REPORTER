@@ -29,7 +29,6 @@ opencv-python==4.11.0.86
 opencv-python-headless==4.10.0.84
 packaging==25.0
 pandas==2.3.2
-pi_heif==0.16.0
 Pillow==9.5.0
 pillow-avif-plugin==1.5.2
 protobuf==3.20.3
