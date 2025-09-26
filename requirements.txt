@@ -2,7 +2,7 @@
 torch==2.5.1
 torchaudio==2.5.1
 torchvision==0.20.1  # Corrected version for torch 2.5.1
-ultralytics==8.2.50   # Updated
+ultralytics==8.0.114   # Updated
 numpy==1.26.4
 pandas==2.2.2
 scipy==1.14.0       # Updated
