@@ -8,6 +8,13 @@ and the Leaflet map is built from that server-side data (no initial API fetch re
 Steps:
   1. Create virtualenv and install requirements(pip install -r requiremnts.txt)
   2. Start MongoDB locally or set MONGO_URI
+ 
+  pip uninstall ultralytics ultralyticsplus -y
+
+pip install ultralytics==8.0.114
+pip install ultralyticsplus
+
+
   3. Create a PWD user:
      python create_pwd_user.py pwd_admin admin123
   4. Run app:

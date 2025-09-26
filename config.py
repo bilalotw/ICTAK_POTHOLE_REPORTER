@@ -6,7 +6,7 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 MONGO_URI = os.getenv("MONGO_URI")
-DB_NAME = os.getenv("MONGO_DB_NAME", "ictakpothole")
+DB_NAME = os.getenv("MONGO_DB_NAME", "ictak_pothole")
 
 UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", os.path.join(BASE_DIR, "uploads"))
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
