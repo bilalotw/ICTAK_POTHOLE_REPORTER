@@ -17,7 +17,7 @@ password = sys.argv[2]
 
 # Load MongoDB config from env vars
 mongo_uri = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/")
-db_name = os.environ.get("MONGODB_DB", "ictak_pothole")
+db_name = os.environ.get("MONGODB_DB", "potholedb")
 
 # Connect to MongoDB
 client = MongoClient(mongo_uri)
