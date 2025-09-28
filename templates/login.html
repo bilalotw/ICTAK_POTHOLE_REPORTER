@@ -64,15 +64,16 @@
         </form>
 
         <p class="text-center mt-3">
-          <a href="{{ url_for('register') }}"
-            >Don't have an account? Register</a
-          >
+          <a href="{{ url_for('register') }}">
+            Don't have an account? Register
+          </a>
         </p>
       </div>
     </div>
   </div>
 </div>
 
+<!-- JS toggle for password visibility -->
 <script>
   document
     .getElementById("togglePassword")
@@ -81,12 +82,10 @@
       const icon = this.querySelector("i");
       if (password.type === "password") {
         password.type = "text";
-        icon.classList.remove("bi-eye");
-        icon.classList.add("bi-eye-slash");
+        icon.classList.replace("bi-eye", "bi-eye-slash");
       } else {
         password.type = "password";
-        icon.classList.remove("bi-eye-slash");
-        icon.classList.add("bi-eye");
+        icon.classList.replace("bi-eye-slash", "bi-eye");
       }
     });
 </script>
